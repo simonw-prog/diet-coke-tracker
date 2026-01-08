@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Coke Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+            color: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e30613;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #e30613 0%, #c00510 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(227, 6, 19, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #666 0%, #444 100%);
+        }
+
+        button.small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: #e9ecef;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .calendar-day.has-data {
+            background: linear-gradient(135deg, #e30613 0%, #c00510 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        .month-label {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            padding: 10px 0;
+            background: white;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .history {
+            margin-top: 30px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-count {
+            background: linear-gradient(135deg, #e30613 0%, #c00510 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .drink-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .drink-type-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e30613;
+        }
+
+        .drink-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .drink-type-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .drink-type-cost {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .drink-type-cost input {
+            width: 70px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .drink-type-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .drink-type-buttons button {
+            flex: 1;
+        }
+
+        .cost-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .date-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .date-selector input[type="date"] {
+            padding: 10px 15px;
+            border: 2px solid #e30613;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date-nav-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+            color: #1a1a1a;
+            border: 2px solid #e30613;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .date-nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .selected-date-label {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥤 Diet Coke Tracker</h1>
+        <p class="subtitle">Track your daily Diet Coke consumption</p>
+
+        <div class="date-selector">
+            <button class="date-nav-btn" onclick="changeDate(-1)">← Previous Day</button>
+            <input type="date" id="dateInput" onchange="onDateChange()" />
+            <button class="date-nav-btn" onclick="changeDate(1)">Next Day →</button>
+            <button class="date-nav-btn" onclick="goToToday()" style="background: linear-gradient(135deg, #e30613 0%, #c00510 100%); color: white;">Today</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="todayCount">0</div>
+                <div class="stat-label">Today (Drinks)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayVolume">0</div>
+                <div class="stat-label">Today (ml)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayCost">£0.00</div>
+                <div class="stat-label">Today (Cost)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="monthCount">0</div>
+                <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="monthCost">£0.00</div>
+                <div class="stat-label">Month Cost</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="yearCount">0</div>
+                <div class="stat-label">This Year</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="yearCost">£0.00</div>
+                <div class="stat-label">Year Cost</div>
+            </div>
+        </div>
+
+        <div class="drink-types" id="drinkTypes"></div>
+
+        <div class="controls">
+            <button onclick="exportData()">📊 Export Data</button>
+            <button onclick="clearToday()" class="danger">🗑️ Clear Today</button>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">Year at a Glance</div>
+            <div id="calendar" class="calendar"></div>
+        </div>
+
+        <div class="history">
+            <h3 style="margin-bottom: 15px; color: #333;">Recent History</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get today's date in YYYY-MM-DD format
+        function getTodayKey() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+
+        // Drink types configuration
+        const drinkTypes = {
+            can330: { name: '330ml Can', volume: 330, defaultCost: 0.50 },
+            bottle330: { name: '330ml Bottle', volume: 330, defaultCost: 0.60 },
+            fountain440: { name: 'Fountain 440ml', volume: 440, defaultCost: 1.20 },
+            bottle500: { name: '500ml Bottle', volume: 500, defaultCost: 1.00 }
+        };
+
+        // Data structure: { "2024-01-08": { can330: 2, bottle330: 1, ... }, ... }
+        let data = {};
+        let costs = {};
+        let selectedDate = getTodayKey(); // Track which date we're viewing/editing
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('dietCokeData');
+            if (saved) {
+                data = JSON.parse(saved);
+            }
+
+            const savedCosts = localStorage.getItem('dietCokeCosts');
+            if (savedCosts) {
+                costs = JSON.parse(savedCosts);
+            } else {
+                // Initialize default costs
+                Object.keys(drinkTypes).forEach(type => {
+                    costs[type] = drinkTypes[type].defaultCost;
+                });
+            }
+
+            // Set date input to today
+            document.getElementById('dateInput').value = selectedDate;
+            updateUI();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('dietCokeData', JSON.stringify(data));
+            localStorage.setItem('dietCokeCosts', JSON.stringify(costs));
+        }
+
+        // Date navigation functions
+        function onDateChange() {
+            selectedDate = document.getElementById('dateInput').value;
+            updateUI();
+        }
+
+        function changeDate(days) {
+            const date = new Date(selectedDate + 'T00:00:00');
+            date.setDate(date.getDate() + days);
+            selectedDate = date.toISOString().split('T')[0];
+            document.getElementById('dateInput').value = selectedDate;
+            updateUI();
+        }
+
+        function goToToday() {
+            selectedDate = getTodayKey();
+            document.getElementById('dateInput').value = selectedDate;
+            updateUI();
+        }
+
+        // Add a drink
+        function addDrink(type) {
+            if (!data[selectedDate]) {
+                data[selectedDate] = {};
+            }
+            data[selectedDate][type] = (data[selectedDate][type] || 0) + 1;
+            saveData();
+            updateUI();
+        }
+
+        // Remove a drink
+        function removeDrink(type) {
+            if (data[selectedDate] && data[selectedDate][type] && data[selectedDate][type] > 0) {
+                data[selectedDate][type]--;
+                if (data[selectedDate][type] === 0) {
+                    delete data[selectedDate][type];
+                }
+                // Clean up empty day entries
+                if (Object.keys(data[selectedDate]).length === 0) {
+                    delete data[selectedDate];
+                }
+                saveData();
+                updateUI();
+            }
+        }
+
+        // Update cost
+        function updateCost(type, value) {
+            const cost = parseFloat(value);
+            if (!isNaN(cost) && cost >= 0) {
+                costs[type] = cost;
+                saveData();
+                updateUI();
+            }
+        }
+
+        // Clear selected day's count
+        function clearToday() {
+            if (confirm('Clear this day\'s count?')) {
+                delete data[selectedDate];
+                saveData();
+                updateUI();
+            }
+        }
+
+        // Calculate statistics
+        function calculateStats() {
+            const today = new Date();
+            const todayKey = getTodayKey();
+
+            // Helper to count drinks and calculate cost for a day
+            function getDayStats(dayData) {
+                let count = 0;
+                let cost = 0;
+                let volume = 0;
+                if (dayData) {
+                    Object.keys(drinkTypes).forEach(type => {
+                        const qty = dayData[type] || 0;
+                        count += qty;
+                        cost += qty * (costs[type] || 0);
+                        volume += qty * drinkTypes[type].volume;
+                    });
+                }
+                return { count, cost, volume };
+            }
+
+            // Today
+            const todayStats = getDayStats(data[todayKey]);
+
+            // This month
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            let monthCount = 0;
+            let monthCost = 0;
+            for (let d = new Date(monthStart); d <= today; d.setDate(d.getDate() + 1)) {
+                const key = d.toISOString().split('T')[0];
+                const dayStats = getDayStats(data[key]);
+                monthCount += dayStats.count;
+                monthCost += dayStats.cost;
+            }
+
+            // This year
+            const yearStart = new Date(today.getFullYear(), 0, 1);
+            let yearCount = 0;
+            let yearCost = 0;
+            for (let d = new Date(yearStart); d <= today; d.setDate(d.getDate() + 1)) {
+                const key = d.toISOString().split('T')[0];
+                const dayStats = getDayStats(data[key]);
+                yearCount += dayStats.count;
+                yearCost += dayStats.cost;
+            }
+
+            return {
+                todayCount: todayStats.count,
+                todayVolume: todayStats.volume,
+                todayCost: todayStats.cost,
+                monthCount,
+                monthCost,
+                yearCount,
+                yearCost
+            };
+        }
+
+        // Update the UI
+        function updateUI() {
+            const stats = calculateStats();
+            document.getElementById('todayCount').textContent = stats.todayCount;
+            document.getElementById('todayVolume').textContent = stats.todayVolume;
+            document.getElementById('todayCost').textContent = `£${stats.todayCost.toFixed(2)}`;
+            document.getElementById('monthCount').textContent = stats.monthCount;
+            document.getElementById('monthCost').textContent = `£${stats.monthCost.toFixed(2)}`;
+            document.getElementById('yearCount').textContent = stats.yearCount;
+            document.getElementById('yearCost').textContent = `£${stats.yearCost.toFixed(2)}`;
+
+            renderDrinkTypes();
+            renderCalendar();
+            renderHistory();
+        }
+
+        // Render drink type cards
+        function renderDrinkTypes() {
+            const container = document.getElementById('drinkTypes');
+            container.innerHTML = '';
+
+            const selectedData = data[selectedDate] || {};
+
+            // Add a header showing which date we're editing
+            const isToday = selectedDate === getTodayKey();
+            const dateObj = new Date(selectedDate + 'T00:00:00');
+            const dateLabel = isToday ? 'Today' : dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const header = document.createElement('div');
+            header.style.cssText = 'grid-column: 1 / -1; text-align: center; font-size: 1.3em; font-weight: bold; color: #e30613; margin-bottom: 10px;';
+            header.textContent = `Editing: ${dateLabel}`;
+            container.appendChild(header);
+
+            Object.keys(drinkTypes).forEach(type => {
+                const drink = drinkTypes[type];
+                const count = selectedData[type] || 0;
+
+                const card = document.createElement('div');
+                card.className = 'drink-type-card';
+
+                card.innerHTML = `
+                    <div class="drink-type-header">
+                        <div class="drink-type-name">${drink.name}</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #e30613;">${count}</div>
+                    </div>
+                    <div class="drink-type-cost">
+                        <span class="cost-label">Cost: £</span>
+                        <input type="number" step="0.01" min="0" value="${costs[type].toFixed(2)}"
+                               onchange="updateCost('${type}', this.value)" />
+                    </div>
+                    <div class="drink-type-buttons">
+                        <button class="small" onclick="addDrink('${type}')">➕</button>
+                        <button class="small" onclick="removeDrink('${type}')">➖</button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+
+            const today = new Date();
+            const yearStart = new Date(today.getFullYear(), 0, 1);
+
+            let currentMonth = -1;
+
+            for (let d = new Date(yearStart); d <= today; d.setDate(d.getDate() + 1)) {
+                const month = d.getMonth();
+
+                // Add month label
+                if (month !== currentMonth) {
+                    currentMonth = month;
+                    const monthLabel = document.createElement('div');
+                    monthLabel.className = 'month-label';
+                    monthLabel.textContent = d.toLocaleDateString('en-US', { month: 'long' });
+                    calendar.appendChild(monthLabel);
+                }
+
+                const key = d.toISOString().split('T')[0];
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                // Count total drinks for this day
+                let totalCount = 0;
+                if (data[key]) {
+                    Object.keys(drinkTypes).forEach(type => {
+                        totalCount += data[key][type] || 0;
+                    });
+                }
+
+                if (totalCount > 0) {
+                    dayElement.classList.add('has-data');
+                    dayElement.textContent = totalCount;
+                    dayElement.title = `${d.toLocaleDateString()}: ${totalCount} drink${totalCount > 1 ? 's' : ''}`;
+                } else {
+                    dayElement.textContent = d.getDate();
+                }
+
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        // Render history
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            const sortedDates = Object.keys(data)
+                .filter(key => {
+                    let hasData = false;
+                    Object.keys(drinkTypes).forEach(type => {
+                        if (data[key][type] && data[key][type] > 0) hasData = true;
+                    });
+                    return hasData;
+                })
+                .sort((a, b) => b.localeCompare(a))
+                .slice(0, 10);
+
+            if (sortedDates.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #999;">No data yet. Start tracking!</p>';
+                return;
+            }
+
+            sortedDates.forEach(dateKey => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+
+                const date = new Date(dateKey + 'T00:00:00');
+                const dateText = document.createElement('span');
+                dateText.className = 'history-date';
+                dateText.textContent = date.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                // Calculate total count and cost for this day
+                let totalCount = 0;
+                let totalCost = 0;
+                Object.keys(drinkTypes).forEach(type => {
+                    const qty = data[dateKey][type] || 0;
+                    totalCount += qty;
+                    totalCost += qty * (costs[type] || 0);
+                });
+
+                const count = document.createElement('span');
+                count.className = 'history-count';
+                count.textContent = `${totalCount} drink${totalCount === 1 ? '' : 's'} - £${totalCost.toFixed(2)}`;
+
+                item.appendChild(dateText);
+                item.appendChild(count);
+                historyList.appendChild(item);
+            });
+        }
+
+        // Export data as CSV
+        function exportData() {
+            const sortedDates = Object.keys(data).sort();
+            let csv = 'Date,330ml Can,330ml Bottle,Fountain 440ml,500ml Bottle,Total Drinks,Total Volume (ml),Total Cost (£)\n';
+
+            sortedDates.forEach(date => {
+                const dayData = data[date];
+                const can330 = dayData.can330 || 0;
+                const bottle330 = dayData.bottle330 || 0;
+                const fountain440 = dayData.fountain440 || 0;
+                const bottle500 = dayData.bottle500 || 0;
+
+                let totalCount = 0;
+                let totalVolume = 0;
+                let totalCost = 0;
+
+                Object.keys(drinkTypes).forEach(type => {
+                    const qty = dayData[type] || 0;
+                    totalCount += qty;
+                    totalVolume += qty * drinkTypes[type].volume;
+                    totalCost += qty * (costs[type] || 0);
+                });
+
+                csv += `${date},${can330},${bottle330},${fountain440},${bottle500},${totalCount},${totalVolume},${totalCost.toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diet-coke-tracker-${getTodayKey()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
